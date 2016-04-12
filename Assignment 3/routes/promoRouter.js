@@ -3,19 +3,20 @@ var bodyParser = require('body-parser');
 var mongoose = require('mongoose');
 
 var Promos = require('../models/promotions');
+var Verify = require('./verify');
 
 var promoRouter = express.Router();
 promoRouter.use(bodyParser.json());
 
 promoRouter.route('/')
-.get(function (req, res, next) {
+.get(Verify.verifyOrdinaryUser, function (req, res, next) {
     Promos.find({}, function (err, promo) {
         if (err) throw err;
         res.json(promo);
     });
 })
 
-.post(function (req, res, next) {
+.post(Verify.verifyOrdinaryUser, Verify.verifyAdmin, function (req, res, next) {
     Promos.create(req.body, function (err, promo) {
         if (err) throw err;
         console.log('Promo created!');
@@ -28,7 +29,7 @@ promoRouter.route('/')
     });
 })
 
-.delete(function (req, res, next) {
+.delete(Verify.verifyOrdinaryUser, Verify.verifyAdmin, function (req, res, next) {
     Promos.remove({}, function (err, resp) {
         if (err) throw err;
         res.json(resp);
